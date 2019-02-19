@@ -1,3 +1,4 @@
+import data_manager from './data_manager';
 import React from 'react';
 import { AsyncStorage, View } from 'react-native';
 import { Button, Input } from 'react-native-elements';
@@ -8,6 +9,8 @@ export default class SignInScreen extends React.Component {
     this.state = {
       endpoint: '',
     };
+
+    data_manager.getKeys();
   }
 
   static navigationOptions = {
