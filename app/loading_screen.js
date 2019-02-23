@@ -1,5 +1,7 @@
 import React from 'react';
-import { ActivityIndicator, AsyncStorage, StatusBar, View } from 'react-native';
+import { ActivityIndicator, StatusBar, View } from 'react-native';
+import { Text } from 'react-native-elements';
+import data_manager from './data_manager';
 
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
@@ -8,15 +10,55 @@ export default class AuthLoadingScreen extends React.Component {
   }
 
   _bootstrapAsync = async () => {
-    const userToken = await AsyncStorage.getItem('userToken');
-    this.props.navigation.navigate(userToken ? 'App' : 'Auth');
+    let screen           = 'Auth';
+    this.connectionState = data_manager.getConnectionState();
+    switch (this.connectionState) {
+      case 'AUTH':
+        screen = 'Auth';
+        break;
+      case 'WAITING_RECIPIENT':
+        const recipient = await data_manager.wait_for_recipient();
+        if (recipient === null) {
+          screen = 'Auth';
+        }
+        if (recipient.action === 'connected') {
+          const handshake = await data_manager.handshake();
+          if (handshake === true) {
+            data_manager.setConnectionState('connected');
+            screen = 'App';
+          }
+        }
+        break;
+      case 'CONNECTED':
+        screen = 'App';
+        break;
+    }
+
+    this.props.navigation.navigate(screen);
+
   };
+
+  renderTitle() {
+    if (this.connectionState === 'WAITING_RECIPIENT') {
+      return <Text h4 style={{
+        color:        'white',
+        marginBottom: 40,
+      }}>Waiting For Recipient</Text>;
+    }
+
+    return null;
+  }
 
   render() {
     return (
-      <View>
-        <ActivityIndicator/>
+      <View style={{
+        flex:           1,
+        alignItems:     'center',
+        justifyContent: 'center',
+      }}>
         <StatusBar barStyle="default"/>
+        {this.renderTitle()}
+        <ActivityIndicator size="large" color="white"/>
       </View>
     );
   }
