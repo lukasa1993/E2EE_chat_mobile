@@ -17,17 +17,18 @@ export default class AuthLoadingScreen extends React.Component {
         screen = 'Auth';
         break;
       case 'WAITING_RECIPIENT':
-        const recipient = await data_manager.wait_for_recipient();
-        if (recipient === null) {
-          screen = 'Auth';
-        }
-        if (recipient.action === 'connected') {
+        data_manager.clearQueue();
+        try {
           const handshake = await data_manager.handshake();
           if (handshake === true) {
             data_manager.setConnectionState('connected');
             screen = 'App';
           }
+        } catch (e) {
+          console.log(e);
+          screen = 'Auth';
         }
+
         break;
       case 'CONNECTED':
         screen = 'App';
