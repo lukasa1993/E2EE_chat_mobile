@@ -11,7 +11,7 @@
     "elliptic": "^6.4.1",
     "keccak": "^2.0.0",
     "keccakjs": "^0.2.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "moment": "^2.24.0",
     "node-fetch": "latest",
     "react": "16.6.3",
